@@ -3,7 +3,7 @@ package aco;
 /**
  * Global parameters used to adjust the ACO
  */
-public class Parameters {
+public class Parametres {
 
     /**
      * Pheromone evaporation rate

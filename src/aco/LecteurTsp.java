@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * Référence: https://github.com/phil8192/tsp-java
  * Répertoire de classe: https://github.com/phil8192/tsp-java/blob/master/src/main/java/net/parasec/tsp/TSPReader.java
  */
-public class TspReader {
+public class LecteurTsp {
 
 
     static double[] coordinateArray;
@@ -25,11 +25,11 @@ public class TspReader {
 
 
     public static double[][] getDistances(String path, String file) {
-        return TspReader.getDistances(new File(path, file).toString());
+        return LecteurTsp.getDistances(new File(path, file).toString());
     }
 
     public static double[][] getCoordinates(String path, String file) {
-        return TspReader.getCoordinates(new File(path, file).toString());
+        return LecteurTsp.getCoordinates(new File(path, file).toString());
     }
 
     public static double[][] getCoordinates(String file) {
