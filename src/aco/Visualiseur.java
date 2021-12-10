@@ -44,8 +44,12 @@ public class Visualiseur extends JFrame {
         largeur = 60;
         hauteur = 60;
         for(int i = 0; i < coordinates.length; i++) {
-            if(coordinates[i][0] > miseEchelleL) miseEchelleL = (int) coordinates[i][0];
-            if(coordinates[i][1] > miseEchelleH) miseEchelleH = (int) coordinates[i][1];
+            if(coordinates[i][0] > miseEchelleL) {
+                miseEchelleL = (int) coordinates[i][0];
+            }
+            if(coordinates[i][1] > miseEchelleH) {
+                miseEchelleH = (int) coordinates[i][1];
+            }
         }
         miseEchelleL = vueLargeur / miseEchelleL;
         miseEchelleH = vueHauteur / miseEchelleH;
