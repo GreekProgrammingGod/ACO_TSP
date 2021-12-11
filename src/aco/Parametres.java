@@ -1,38 +1,38 @@
 package aco;
 
 /**
- * Global parameters used to adjust the ACO
+ * Les paramètres global qui vont permettent d'ajuster ACO
  */
 public class Parametres {
 
     /**
-     * Pheromone evaporation rate
+     * Taux d'évaporation des pheromones dans les différents trajets (rho)
      */
-    public static double rho = 0.5;
+    public static double tauxEvaporationPheromones = 0.5;
 
     /**
-     * Pheromone importance
+     * L'importance des pheromones (alpha)
      */
-    public static double alpha = 1.0;
+    public static double importanceDesPheromones = 1.0;
 
     /**
-     * Heuristic importance
+     * L'importance de l'heuristique (beta)
      */
-    public static double beta = 2.0;
+    public static double importanceDeHeuristique = 2.0;
 
     /**
-     * Size of ant population
+     * Nombre de fourmis agents
      */
-    public static int antPopSize = 20;
+    public static int taillePopulationFourmis = 60;
 
     /**
-     * Size of nearest neighbor list for each vertex
+     * La taille de la liste de chaque voisin pour chaque ville
      */
-    public static int NNSize = 20;
+    public static int tailleDeLaListeDesVoisinsLesPlusProches = 20;
 
     /**
-     * Number of iterations to find a good solution
+     * Nombre d'itérations pour trouver la bonne solution
      */
-    public static int iterationsMax = 150;
+    public static int iterationsMax = 450;
 
 }

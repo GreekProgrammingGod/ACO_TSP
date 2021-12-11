@@ -8,14 +8,13 @@ public class Fourmi {
     private double distanceTotal;
 
     /**
-     * La variable _____ représente la séquence des nœuds qui ont été visité par la fourmi.
-     * on a donc une séquence accumuler qui débute du premier jusqu'au dernier ex : [A,B,C,D,E]
-     *
+     * La variable sequenceNoeuds représente la séquence des nœuds qui ont été visité par la fourmi.
+     * On a donc une séquence accumuler qui débute du premier jusqu'au dernier ex : [A, B, C, D, E]
      */
     private int[] sequenceNoeuds;
 
     /**
-     * La variable  représente tous les nœuds qui ont été visité par la fourmi.
+     * La variable noeudsVisite représente tous les nœuds qui ont été visité par la fourmi.
      * Cette variable booléenne permet de savoir si la fourmi a passé une seule fois par tous les nœuds.
      */
     private boolean[] noeudsVisite;
@@ -29,7 +28,7 @@ public class Fourmi {
     /**
      *
      * Permet de faire la création d'une fourmi qui sera adapter à son environnement.
-     *  @param nombreDeNoeuds
+     * @param nombreDeNoeuds
      * @param environnement
      */
     public Fourmi(int nombreDeNoeuds, Environnement environnement) {
@@ -58,8 +57,7 @@ public class Fourmi {
     }
 
     /**
-     *
-     * Dans cette méthode, on fait une remise a zéro de la fourmi qui sera utilisée
+     * Dans cette méthode, on fait une remise à zéro de la fourmi qui sera utilisée
      */
     public void nettoyerVisiter() {
         for (int i = 0; i < noeudsVisite.length; i++) {
@@ -119,8 +117,8 @@ public class Fourmi {
 
     /**
      *
-     *Terminez le circuit des fourmis, liez le dernier nœud avec le premier nœud (dernier nœud
-     *n est égal au nœud 0) et calculez le coût de l'itinéraire.
+     * Terminez le circuit des fourmis, liez le dernier nœud avec le premier nœud (dernier nœud
+     * n est égal au nœud 0) et calculez le coût de l'itinéraire.
      */
     public void terminerSequence() {
         sequenceNoeuds[environnement.getNombreDeNoeuds()] = sequenceNoeuds[0];
@@ -128,32 +126,31 @@ public class Fourmi {
     }
 
     /**
-     *
-     * Calculer la tendance du prochain voisin en sélectionnant probabiliste le chemin
-     * avec plus de phéromone et une distance plus petite. On essaie d'abord de trouver
-     * un vecteur pour se déplacer dans la liste des voisins les plus proches, mais si tous les vecteurs ont été visités
-     * alors on sélectionne le meilleur parmi tous les voisins restants
+     * Calculer le prochain voisin tendant de manière probabiliste en sélectionnant le chemin
+     * avec le plus de phéromone et une distance plus petite. On essaie d'abord de trouver
+     * un vecteur pour se déplacer dans la liste des voisins les plus proches, mais si tous les
+     * vecteurs ont été visités alors on sélectionne le meilleur voisin parmi tous les voisins restants
      *
      * @param phase
      */
-    public void goToNNListAsDecisionRule(int phase) {
+    public void allerALaListeDesVoisinsLesPlusProchesCommeRègleDeDecision(int phase) {
 
         //Choisir la ville actuelle
         int villeActuelle = this.sequenceNoeuds[phase - 1];
         double sommeDesProbabilities = 0.0;
 
-        // Représente le vecteur de la ville la plus près en proportion par rapport à notre fitness
+        //Représente le vecteur de la ville la plus près en proportion par rapport à notre fitness
 
-        double[] selectionDeProbabilitie = new double[environnement.getNNSize() + 1];
+        double[] selectionDeProbabilitie = new double[environnement.getNombresDeVoisinsLesPlusProches() + 1];
 
         //Pour chaque vertèbre voisine qui n'a pas été visitée encore, on ajoute le fitness au
         //vecteur de probabilité
 
-        for(int j = 0; j < environnement.getNNSize(); j++) {
-            if(noeudsVisite[environnement.getNNNode(villeActuelle, j)]) {
+        for(int j = 0; j < environnement.getNombresDeVoisinsLesPlusProches(); j++) {
+            if(noeudsVisite[environnement.getVoisinLePlusProche(villeActuelle, j)]) {
                 selectionDeProbabilitie[j] = 0.0;
             } else {
-                selectionDeProbabilitie[j] = environnement.getCostInfo(villeActuelle, environnement.getNNNode(villeActuelle, j));
+                selectionDeProbabilitie[j] = environnement.getCostInfo(villeActuelle, environnement.getVoisinLePlusProche(villeActuelle, j));
                 sommeDesProbabilities += selectionDeProbabilitie[j];
             }
         }
@@ -175,14 +172,14 @@ public class Fourmi {
             }
 
             //Si le problème d'arrondissement se produit (Java)
-            if(j == environnement.getNNSize()) {
+            if(j == environnement.getNombresDeVoisinsLesPlusProches()) {
                 //Choisi le meilleur voisin
                 goToBestNeighbor(phase);
                 return;
             }
 
             //Permet de faire la visite du nœud qui a été sélectionné.
-            sequenceNoeuds[phase] = environnement.getNNNode(villeActuelle, j);
+            sequenceNoeuds[phase] = environnement.getVoisinLePlusProche(villeActuelle, j);
             noeudsVisite[this.sequenceNoeuds[phase]] = true;
         }
     }
@@ -203,8 +200,8 @@ public class Fourmi {
         double coutDeVilleTemporaire;
 
         //On sélectionne un voisin non visité qui contient le fitness maximum
-        for(int i = 0; i < environnement.getNNSize(); i++) {
-            villeTemporaire = environnement.getNNNode(villeActuelle, i);
+        for(int i = 0; i < environnement.getNombresDeVoisinsLesPlusProches(); i++) {
+            villeTemporaire = environnement.getVoisinLePlusProche(villeActuelle, i);
             if(!this.noeudsVisite[villeTemporaire]) {
                 coutDeVilleTemporaire = environnement.getCostInfo(villeActuelle, villeTemporaire);
                 if(coutDeVilleTemporaire > meilleurCoutADate) {
@@ -239,12 +236,12 @@ public class Fourmi {
      * @param phase
      * @return sequenceNoeuds[phase]
      */
-    public int getPhaseSequence(int phase) {
+    public int getSequenceDeLaPhase(int phase) {
         return sequenceNoeuds[phase];
     }
 
     /**
-     * Fait le retour du tour actuel
+     * Fait le retour de la séquence (itération) actuel
      *
      * @return sequenceNoeuds
      */

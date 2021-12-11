@@ -14,8 +14,8 @@ public class Visualiseur extends JFrame {
     int vueHauteur;
     int largeur;
     int hauteur;
-    double miseEchelleL;
-    double miseEchelleH;
+    double miseAEchelleL;
+    double miseAEchelleH;
 
     ArrayList<Noeud> noeuds;
     ArrayList<Chemin> chemins;
@@ -41,28 +41,28 @@ public class Visualiseur extends JFrame {
         chemins = new ArrayList<Chemin>();
         vueLargeur = this.getWidth();
         vueHauteur = this.getHeight();
-        largeur = 60;
-        hauteur = 60;
+        largeur = 30;
+        hauteur = 30;
         for(int i = 0; i < coordinates.length; i++) {
-            if(coordinates[i][0] > miseEchelleL) {
-                miseEchelleL = (int) coordinates[i][0];
+            if(coordinates[i][0] > miseAEchelleL) {
+                miseAEchelleL = (int) coordinates[i][0];
             }
-            if(coordinates[i][1] > miseEchelleH) {
-                miseEchelleH = (int) coordinates[i][1];
+            if(coordinates[i][1] > miseAEchelleH) {
+                miseAEchelleH = (int) coordinates[i][1];
             }
         }
-        miseEchelleL = vueLargeur / miseEchelleL;
-        miseEchelleH = vueHauteur / miseEchelleH;
-        miseEchelleL *= .9;
-        miseEchelleH *= .9;
+        miseAEchelleL = vueLargeur / miseAEchelleL;
+        miseAEchelleH = vueHauteur / miseAEchelleH;
+        miseAEchelleL *= .9;
+        miseAEchelleH *= .9;
     }
 
     public void draw(int[] tour) {
         this.noeuds.clear();
         this.chemins.clear();
         for(int i = 0; i < coordonnees.length; i++) {
-            int x = (int) (coordonnees[i][0] * miseEchelleL);
-            int y = (int) (coordonnees[i][1] * miseEchelleH);
+            int x = (int) (coordonnees[i][0] * miseAEchelleL);
+            int y = (int) (coordonnees[i][1] * miseAEchelleH);
             this.ajouterChemin(String.valueOf(i), x, y);
         }
         for(int i = 0; i < tour.length - 1; i++) {
@@ -95,26 +95,26 @@ public class Visualiseur extends JFrame {
         }
     }
 
-    // Add a node at pixel (x,y)
 
-    //fait l'ajout d'un noeud au pixel avec les coordonnées x et y
+    //fait l'ajout d'un nœud au pixel avec les coordonnées x et y
 
     public void ajouterChemin(String nom, int x, int y) {
         noeuds.add(new Noeud(nom,x,y));
     }
 
-    // Add an edge between nodes i and j
 
-    //fait la cration d'une arrêtes entre les noeud i et j
+
+    //fait la creation d'une arrêtes entre les nœuds i et j
     public void ajouterNoeud(int i, int j) {
         chemins.add(new Chemin(i,j));
     }
 
-    // Clear and repaint the nodes and edges
 
-    //Fait une suppression des noeuds et arrêtes représenter
-    //et on refait l'affichage des noeuds et arrêtes
+
+    //Fait une suppression des nœuds et arrêtes représenter
+    //et on refait l'affichage des nœuds et arrêtes
     //Surcharge de la méthode paint dans la classe Window
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
         FontMetrics f = g.getFontMetrics();

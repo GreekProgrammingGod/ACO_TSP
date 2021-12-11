@@ -5,48 +5,44 @@ import java.util.Collections;
 import java.util.Comparator;
 
 /**
- *
- * represente l'espace de solution, les noeuds et les arcs du graphe a optimiser et la quantite de pheromones
- * laisses par les fourmis
+ * Représente l'espace de solution, les nœuds et les arcs du graphe à
+ * optimiser et la quantité de pheromones laissé par les fourmis
  */
 public class Environnement {
 
     /**
-     * valeur pour la quantite initiale de pheromones
+     * Valeur pour la quantité initiale de pheromones
      */
     private double cheminInitiale;
 
     /**
-     * matrix pour une solution de graphe NxN
+     * La matrice du problème du graphe à résoudre de dimension NxN
      */
     private double[][] graphe;
 
     /**
-     * la matrice NxN trouve le voisin le plus proche sur le graphe
+     * La matrice de NxN voisin le plus proche pour chaque sommet du graphe
      */
-    private int[][] NNList;
+    private int[][] listeDesVoisinsLesPlusProches;
 
     /**
-     * indication de la quantite de pheromones laissees par les fourmis
+     * Indication de la quantité de pheromones laissées par les fourmis
      */
     private double[][] pheromone;
 
     /**
-     * The matrix of NxN storing the value of the best edges calculated using
-     * the pheromone amount and the quality of the edges (smaller distances).
-     *
-     * La matrice
+     *La matrice NxN stockant la valeur des meilleurs chemins calculées en utilisant
+     *la quantité de phéromone et la qualité des bords (plus petites distances).
      */
-    private double[][] choiceInfo;
+    private double[][] infoChoixChemin;
+    
+    /**
+     * Les agents fourmis contenus dans l'environnement
+     */
+    private Fourmi[] fourmis;
 
     /**
-     *
-     * Les fourmis
-     */
-    private Fourmi[] ants;
-
-    /**
-     * Necessite une graphe a resoudre
+     * Le graphe à résoudre dans l'environnement
      *
      * @param graphe
      */
@@ -56,155 +52,159 @@ public class Environnement {
     }
 
     /**
-     *
-     * Créer une liste des voisins les plus proches nn dans une structure de dimension n x nn ou n est la taille
-     * de la population et nn la taille des voisins les plus pres
+     * Créer une liste des voisins les plus proches nn dans une structure de dimension n x nn
+     * ou n est la taille de la population et nn la taille des voisins les plus pres
+     * listeDesVoisinsLesPlusProches[nombreDeNoeuds][nombresDeVoisinsLesPlusProches]
      */
-    public void generateNearestNeighborList() {
-        NNList = new int[getNombreDeNoeuds()][getNNSize()];
+    public void genererListeDesVoisinsLesPlusProches() {
+        listeDesVoisinsLesPlusProches = new int[getNombreDeNoeuds()][getNombresDeVoisinsLesPlusProches()];
 
-        //pour chaque noeud dans le graph, on classe les voisins par distance
+        //Pour chaque nœud dans le graph, on classe les voisins par distance
         //on classe la liste par la taille de nn
         for(int i = 0; i < getNombreDeNoeuds(); i++) {
             Integer[] indexNoeud = new Integer[getNombreDeNoeuds()];
-            Double[] nodeData = new Double[getNombreDeNoeuds()];
+            Double[] infoNoeud = new Double[getNombreDeNoeuds()];
             for(int j = 0; j < getNombreDeNoeuds(); j++) {
                 indexNoeud[j] = j;
-                nodeData[j] = getCout(i, j);
+                infoNoeud[j] = getCout(i, j);
             }
 
-            // Le bord du sommet courant avec lui-même est laissé comme derniere
+            // Le chemin courant avec lui-même est laissé comme dernière
             // option à sélectionner dans la liste des voisins les plus proches
-
-            nodeData[i] = Collections.max(Arrays.asList(nodeData));
+            
+            infoNoeud[i] = Collections.max(Arrays.asList(infoNoeud));
             Arrays.sort(indexNoeud, new Comparator<Integer>() {
                 public int compare(final Integer o1, final Integer o2) {
-                    return Double.compare(nodeData[o1], nodeData[o2]);
+                    return Double.compare(infoNoeud[o1], infoNoeud[o2]);
                 }
             });
-            for(int r = 0; r < getNNSize(); r++) {
-                NNList[i][r] = indexNoeud[r];
+            for(int r = 0; r < getNombresDeVoisinsLesPlusProches(); r++) {
+                listeDesVoisinsLesPlusProches[i][r] = indexNoeud[r];
             }
         }
     }
 
     /**
-     * créer une population avec k fourmis pour chercher les solutions à l'environnement
+     * Créer une population avec k fourmis pour chercher les solutions à l'environnement
      */
-    public void generateAntPopulation() {
-        ants = new  Fourmi[getAntPopSize()];
-        for(int k = 0; k < getAntPopSize(); k++) {
-            ants[k] = new  Fourmi(getNombreDeNoeuds(), this);
+    public void genererPopulationFourmis() {
+        fourmis = new Fourmi[getTaillePopulationFourmis()];
+        for(int k = 0; k < getTaillePopulationFourmis(); k++) {
+            fourmis[k] = new Fourmi(getNombreDeNoeuds(), this);
         }
     }
 
     /**
+     *  Création d'une structure d'informations sur les phéromones et les choix de chemins. La phéromone
+     *  est utilisée pour représenter la qualité des chemins utilisés pour construire des solutions.
+     *  infoChoixChemin est calculé avec la phéromone et la qualité des chemins, a utilisé par les
+     *  fourmis comme règle de décision et index pour accélérer l'algorithme.
      *
-     * on crée des phéromones et ont choisi la structure d'information
-     * les phéromones représentent la qualité des intersections pour choisir une solution
-     * choiceinfo calcule la decision prise par les fourmis afin d'évaluer les chemins à prendre
-     *
-     * afin de commencer, le pheromones utiliser est la distance entre les villes voisines
+     *  Pour générer l'environnement la phéromone est initialisée en tenant compte du coût
+     *  du tour du voisin le plus proche.
      */
-    public void generateEnvironment() {
+
+    public void genererEnvironnement() {
         pheromone = new double[getNombreDeNoeuds()][getNombreDeNoeuds()];
-        choiceInfo = new double[getNombreDeNoeuds()][getNombreDeNoeuds()];
-        cheminInitiale = 1.0 / (Parametres.rho * ants[0].calculerVoisinPlusProche());
+        infoChoixChemin = new double[getNombreDeNoeuds()][getNombreDeNoeuds()];
+        cheminInitiale = 1.0 / (Parametres.tauxEvaporationPheromones * fourmis[0].calculerVoisinPlusProche());
         for(int i = 0; i < getNombreDeNoeuds(); i++) {
             for(int j = i; j < getNombreDeNoeuds(); j++) {
                 pheromone[i][j] = cheminInitiale;
                 pheromone[j][i] = cheminInitiale;
-                choiceInfo[i][j] = cheminInitiale;
-                choiceInfo[j][i] = cheminInitiale;
+                infoChoixChemin[i][j] = cheminInitiale;
+                infoChoixChemin[j][i] = cheminInitiale;
             }
         }
-        calculateChoiceInformation();
+        calculerLesInfosDuChoixDuChemin();
     }
 
+
     /**
-     *
-     *calculer la probabilite proportionnelle basee sur la quantite de pheromones et sur la distance entre 2 villes,
-     * defini par alpha et beta
+     * Calculer la probabilité proportionnelle d'une fourmi au nœud i de sélectionner un
+     * voisin j basé sur le coût (l'inverse du coût) du chemin (i → j) ainsi que
+     * la quantité de phéromone sur le chemin (i → j). Les paramètres importanceDesPheromones
+     * et importanceDeHeuristique contrôlent l'équilibre entre l'heuristique et la phéromone.
      */
-    public void calculateChoiceInformation() {
+    public void calculerLesInfosDuChoixDuChemin() {
         for(int i = 0; i < getNombreDeNoeuds(); i++) {
             for(int j = 0; j < i; j++) {
                 double heuristic = (1.0 / (getCout(i, j) + 0.1));
-                choiceInfo[i][j] = Math.pow(pheromone[i][j], Parametres.alpha) * Math.pow(heuristic, Parametres.beta);
-                choiceInfo[j][i] = choiceInfo[i][j];
+                infoChoixChemin[i][j] = Math.pow(pheromone[i][j], Parametres.importanceDesPheromones) * Math.pow(heuristic, Parametres.importanceDeHeuristique);
+                infoChoixChemin[j][i] = infoChoixChemin[i][j];
             }
         }
     }
 
     /**
-     * chaque fourmi va construire une solution dans l'environnement
+     * Chaque fourmi va construire une solution dans l'environnement
      */
-    public void constructSolutions() {
-        // At the first step reset all ants (clearVisited) and put each one
-        // in a random vertex of the graph.
+    public void construireSolutions() {
+        //À la premiere étape, réinitialise toutes les fourmis et mettre
+        // chacune d'elle dans un nœud (ville) aléatoire du graphe
         int phase = 0;
-        for(int k = 0; k < getAntPopSize(); k++) {
-            ants[k].nettoyerVisiter();
-            ants[k].debuterAUnePositionAleatoire(phase);
+        for(int k = 0; k < getTaillePopulationFourmis(); k++) {
+            fourmis[k].nettoyerVisiter();
+            fourmis[k].debuterAUnePositionAleatoire(phase);
         }
-        // Make all ants choose the next non visited vertex based in the
-        // pheromone trails and heuristic of the edge cost.
+        //Faire en sorte que toutes les fourmis choisissent le prochain nœud non-visiter
+        //basée sur la quantité de pheromones et l'heuristique du coût du chemin.
         while(phase < getNombreDeNoeuds() - 1) {
             phase++;
-            for(int k = 0; k < getAntPopSize(); k++) {
-                ants[k].goToNNListAsDecisionRule(phase);
+            for(int k = 0; k < getTaillePopulationFourmis(); k++) {
+                fourmis[k].allerALaListeDesVoisinsLesPlusProchesCommeRègleDeDecision(phase);
             }
         }
-        // Close the circuit and calculate the total cost
-        for(int k = 0; k < getAntPopSize(); k++) {
-            ants[k].terminerSequence();
+        //Terminer la sequence et calculer le tout total.
+        for(int k = 0; k < getTaillePopulationFourmis(); k++) {
+            fourmis[k].terminerSequence();
         }
     }
 
     /**
-     * calculer la qualite des solutions et le taux d'evaporation des pheromones
+     * Mettre à jour la phéromone en tenant compte de la qualité de construction
+     * des solutions par les fourmis et le taux d'évaporation des pheromones
      */
-    public void updatePheromone() {
-        evaporatePheromone();
-        for(int k = 0; k < getAntPopSize(); k++) {
-            depositPheromone(ants[k]);
+    public void miseajourPheromone() {
+        evaporationPheromones();
+        for(int k = 0; k < getTaillePopulationFourmis(); k++) {
+            depotPheromones(fourmis[k]);
         }
-        calculateChoiceInformation();
+        calculerLesInfosDuChoixDuChemin();
     }
 
     /**
-     * evaporer les pheromones par a exposant (1-rho)
+     * Évaporer la quantité de phéromone par un facteur exponentiel
+     * (1 - tauxEvaporationPheromones) pour tous les chemins
      */
-    public void evaporatePheromone() {
+    public void evaporationPheromones() {
         for(int i = 0; i < getNombreDeNoeuds(); i++) {
             for(int j = i; j < getNombreDeNoeuds(); j++) {
-                pheromone[i][j] = (1 - Parametres.rho) * pheromone[i][j];
+                pheromone[i][j] = (1 - Parametres.tauxEvaporationPheromones) * pheromone[i][j];
                 pheromone[j][i] = pheromone[i][j];
             }
         }
     }
-
     /**
-     * For the ant, deposit the amount of pheromone in all edges used in the ant where
-     * the amount of pheromone deposited is proportional to the solution quality
+     * Déposez la quantité de phéromone dans tous les chemins utilisés par la fourmi ou
+     * la quantité de phéromone déposée est proportionnelle à la qualité de la solution.
      *
-     *
-     * @param ant
+     * @param fourmi
      */
-    public void depositPheromone(Fourmi ant) {
-        double dTau = 1.0 / ant.getDistanceTotal();
+    public void depotPheromones(Fourmi fourmi) {
+        double dTau = 1.0 / fourmi.getDistanceTotal();
         for(int i = 0; i < getNombreDeNoeuds(); i++) {
-            int j = ant.getPhaseSequence(i);
-            int l = ant.getPhaseSequence(i + 1);
+            int j = fourmi.getSequenceDeLaPhase(i);
+            int l = fourmi.getSequenceDeLaPhase(i + 1);
             pheromone[j][l] = pheromone[j][l] + dTau;
             pheromone[l][j] = pheromone[j][l];
         }
     }
 
     /**
-     * retourne le nombre de noeuds
+     * Retourne le nombre de nœuds (la population du graphe)
      *
-     * @return graphLength
+     * @return graphe.length
      */
     public int getNombreDeNoeuds() {
         return graphe.length;
@@ -212,66 +212,61 @@ public class Environnement {
 
     /**
      *
-     * retourne la quantite de voisins les plus proches
+     * Retourne la quantité de voisins les plus proches
      *
-     * @return nnSize
+     * @return Parametres.tailleDeLaListeDesVoisinsLesPlusProches
      */
-    public int getNNSize() { return Parametres.NNSize; }
+    public int getNombresDeVoisinsLesPlusProches() { return Parametres.tailleDeLaListeDesVoisinsLesPlusProches; }
 
     /**
-     * Return the distance between to vertices
+     * Retourne le coût (distance) entre les nœuds
      *
-     *
-     *
-     * @param from
-     * @param to
+     * @param depart
+     * @param destination
      * @return cost
      */
-    public double getCout(int from, int to) {
-        return graphe[from][to];
+    public double getCout(int depart, int destination) {
+        return graphe[depart][destination];
     }
 
     /**
-     *
-     * retourne la taille de la population de fourmis
+     * Retourne la taille de la population de fourmis
      *
      * @return antPopSize
      */
-    public int getAntPopSize() {
-        return Parametres.antPopSize;
+    public int getTaillePopulationFourmis() {
+        return Parametres.taillePopulationFourmis;
     }
 
     /**
+     * Retourne le voisin le plus proche de la position du rang d'index
      *
-     * retourne le voisin le plus pres par position
-     *
-     * @param from
+     * @param depart
      * @param index
-     * @return targetVertex
+     * @return this.listeDesVoisinsLesPlusProches[depart][index]
      */
-    public int getNNNode(int from, int index) {
-        return this.NNList[from][index];
+    public int getVoisinLePlusProche(int depart, int index) {
+        return this.listeDesVoisinsLesPlusProches[depart][index];
+    }
+
+
+    /**
+     * Renvoie la valeur heuristique-phéromone du chemin entre départ et destination
+     *
+     * @param depart
+     * @param destination
+     * @return infoChoixChemin[depart][destination]
+     */
+    public double getCostInfo(int depart, int destination) {
+        return infoChoixChemin[depart][destination];
     }
 
     /**
+     * Retourne le tableau de fourmis (population de fourmis dans l'environnement)
      *
-     * retourne la valeur de distance-pheromones a l'intersection entre deux villes
-     *
-     * @param from
-     * @param to
-     * @return costInfo
-     */
-    public double getCostInfo(int from, int to) {
-        return choiceInfo[from][to];
-    }
-
-    /**
-     *
-     * retourne le tableau de fourmis
-     *
-     * @return ants
+     * @return fourmis
      */
     public Fourmi[] getAnts() {
-        return ants;
+        return fourmis;
     }
 }

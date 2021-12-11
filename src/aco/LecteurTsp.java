@@ -6,51 +6,51 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Référence: https://github.com/phil8192/tsp-java
- * Répertoire de classe: https://github.com/phil8192/tsp-java/blob/master/src/main/java/net/parasec/tsp/TSPReader.java
+ * Référence : https://github.com/phil8192/tsp-java
+ * Répertoire de classe : https://github.com/phil8192/tsp-java/blob/master/src/main/java/net/parasec/tsp/TSPReader.java
  */
 public class LecteurTsp {
 
 
-    static double[] coordinateArray;
+    static double[] tabCoordonnees;
 
-    static int counter = 0;
+    static int compteur = 0;
 
-    static double[][] data;
+    static double[][] donnees;
     static double[][] distances;
-    static String EdgeWeightType;
+    static String typeDePoidsChemin;
 
-    static boolean isData = false;
+    static boolean estDonnees = false;
     static double xd, yd, rij, tij;
 
 
-    public static double[][] getDistances(String path, String file) {
-        return LecteurTsp.getDistances(new File(path, file).toString());
+    public static double[][] getDistances(String cheminFichier, String fichier) {
+        return LecteurTsp.getDistances(new File(cheminFichier, fichier).toString());
     }
 
-    public static double[][] getCoordinates(String path, String file) {
-        return LecteurTsp.getCoordinates(new File(path, file).toString());
+    public static double[][] getCoordonnees(String cheminFichier, String fichier) {
+        return LecteurTsp.getCoordonnees(new File(cheminFichier, fichier).toString());
     }
 
-    public static double[][] getCoordinates(String file) {
-        isData = false;
-        counter = 0;
-        stripCoordinates(file);
+    public static double[][] getCoordonnees(String fichier) {
+        estDonnees = false;
+        compteur = 0;
+        extractionCoordonnees(fichier);
         System.out.println();
-        return data;
+        return donnees;
     }
 
     public static double[][] getDistances(String file) {
-        isData = false;
-        counter = 0;
-        stripCoordinates(file);
-        calculateDistances();
+        estDonnees = false;
+        compteur = 0;
+        extractionCoordonnees(file);
+        calculerDistance();
         return distances;
     }
 
-    public static String getEdgeWeightType(String file) {
+    public static String getTypeDePoidsChemin(String fichier) {
         try {
-            BufferedReader in = new BufferedReader(new FileReader(file));
+            BufferedReader in = new BufferedReader(new FileReader(fichier));
             String input = null;
             try {
                 while ((input = in.readLine()) != null) {
@@ -73,25 +73,27 @@ public class LecteurTsp {
         return null;
     }
 
-    public static void read(String file) {
-        isData = false;
-        counter = 0;
-        if (file.length() > 0) {
-            stripCoordinates(file);
-            calculateDistances();
-            print();
+    //Lecture du fichier
+    public static void lectureDuFichier(String fichier) {
+        estDonnees = false;
+        compteur = 0;
+        if (fichier.length() > 0) {
+            extractionCoordonnees(fichier);
+            calculerDistance();
+            afficher();
         } else {
-            System.out.print("Enter the file as your argument: ");
+            System.out.print("Entrer le dossier comme argument: ");
             Scanner scan = new Scanner(System.in);
-            stripCoordinates(scan.nextLine());
-            calculateDistances();
-            print();
+            extractionCoordonnees(scan.nextLine());
+            calculerDistance();
+            afficher();
         }
         System.exit(0);
     }
 
-    public static void print() {
-        System.out.println("\nCorresponding distance matrix");
+    //Afficher la distance de la matrice
+    public static void afficher() {
+        System.out.println("\nDistance de la matrice correspondante");
         StringBuilder dataString = new StringBuilder();
         dataString.append("\t");
         for (int i = 0; i < distances.length; i++) {
@@ -106,16 +108,16 @@ public class LecteurTsp {
         System.out.println("\n" + dataString.toString());
     }
 
-
-    private static void calculateDistances() {
-        if (EdgeWeightType.equals("ATT")) {
-            for (int i = 0; i < data.length; i++) {
-                for (int j = 0; j < data.length; j++) {
+//Calculer la distance de chaque ville
+    private static void calculerDistance() {
+        if (typeDePoidsChemin.equals("ATT")) {
+            for (int i = 0; i < donnees.length; i++) {
+                for (int j = 0; j < donnees.length; j++) {
                     if (i == j) {
                         distances[i][j] = 0;
                     } else {
-                        xd = data[i][0] - data[j][0];
-                        yd = data[i][1] - data[j][1];
+                        xd = donnees[i][0] - donnees[j][0];
+                        yd = donnees[i][1] - donnees[j][1];
                         rij = (float) Math.sqrt(((xd * xd) + (yd * yd)) / 10.0);
                         tij = Math.round(rij);
                         if (tij < rij) {
@@ -126,14 +128,14 @@ public class LecteurTsp {
                     }
                 }
             }
-        } else if (EdgeWeightType.equals("EUC_2D")) {
-            for (int i = 0; i < data.length; i++) {
-                for (int j = 0; j < data.length; j++) {
+        } else if (typeDePoidsChemin.equals("EUC_2D")) {
+            for (int i = 0; i < donnees.length; i++) {
+                for (int j = 0; j < donnees.length; j++) {
                     if (i == j) {
                         distances[i][j] = 0;
                     } else {
-                        xd = data[i][0] - data[j][0];
-                        yd = data[i][1] - data[j][1];
+                        xd = donnees[i][0] - donnees[j][0];
+                        yd = donnees[i][1] - donnees[j][1];
                         distances[i][j] = Math.round(Math.sqrt((xd * xd) + (yd * yd)));
                     }
                 }
@@ -141,39 +143,39 @@ public class LecteurTsp {
         }
     }
 
-    private static void stripCoordinates(String file) {
+    private static void extractionCoordonnees(String fichier) {
         try {
-            BufferedReader in = new BufferedReader(new FileReader(file));
+            BufferedReader in = new BufferedReader(new FileReader(fichier));
             String input = null;
             try {
                 while ((input = in.readLine()) != null) {
                     input = input.trim();
                     input = input.replace("   ", " ");
                     input = input.replace("  ", " ");
-                    if (input.contains("DIMENSION") && !isData) {
+                    if (input.contains("DIMENSION") && !estDonnees) {
                         Pattern p = Pattern.compile("(\\d+)");
                         Matcher m = p.matcher(input);
                         if (m.find()) {
                             distances = new double[Integer.parseInt(m.group(0))][Integer.parseInt(m.group(0))];
-                            data = new double[Integer.parseInt(m.group(0))][2];
+                            donnees = new double[Integer.parseInt(m.group(0))][2];
                         }
                     }
-                    if (input.contains("EDGE_WEIGHT_TYPE") && !isData) {
+                    if (input.contains("EDGE_WEIGHT_TYPE") && !estDonnees) {
                         Pattern p = Pattern.compile("EDGE_WEIGHT_TYPE : (.+)");
                         Matcher m = p.matcher(input);
                         if (m.matches()) {
-                            EdgeWeightType = m.group(1);
+                            typeDePoidsChemin = m.group(1);
                         }
                     }
-                    if (input.contains("NODE_COORD_SECTION") && !isData) {
-                        isData = true;
-                    } else if (isData) {
+                    if (input.contains("NODE_COORD_SECTION") && !estDonnees) {
+                        estDonnees = true;
+                    } else if (estDonnees) {
                         if (!input.equals("EOF")) {
                             String[] coordinates = input.split(" ");
-                            coordinateArray = new double[2];
-                            coordinateArray[0] = Double.parseDouble(coordinates[1]);
-                            coordinateArray[1] = Double.parseDouble(coordinates[2]);
-                            data[counter++] = coordinateArray;
+                            tabCoordonnees = new double[2];
+                            tabCoordonnees[0] = Double.parseDouble(coordinates[1]);
+                            tabCoordonnees[1] = Double.parseDouble(coordinates[2]);
+                            donnees[compteur++] = tabCoordonnees;
                         }
                     }
                 }

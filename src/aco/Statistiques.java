@@ -50,7 +50,7 @@ public class Statistiques {
      * a été détectée, afficher les valeurs du meilleur tour à date.
      * @param phase
      */
-    public void calculateStatistics(int phase) {
+    public void calculerStats(int phase) {
         double min = Double.MAX_VALUE;
         double max = Double.MIN_VALUE;
         double total = 0.0;
@@ -68,7 +68,7 @@ public class Statistiques {
         if(min < coutMeilleurSequenceADate) {
             coutMeilleurSequenceADate = min;
             meilleureSequenceADate = meilleureFourmi.getSequenceNoeuds().clone();
-            String stats = String.format("%s -> Min(%.1f) Phase(%d) Max(%.1f) Moyenne(%.1f)\n", fichierTsp, min, phase, max, (total / environnement.getAntPopSize()));
+            String stats = String.format("%s -> Min(%.1f) Phase(%d) Max(%.1f) Moyenne(%.1f)\n", fichierTsp, min, phase, max, (total / environnement.getTaillePopulationFourmis()));
             String message = "[" + meilleureSequenceADate[0];
             for(int i = 1; i < meilleureSequenceADate.length - 1; i++) {
                 message += "->" + meilleureSequenceADate[i];
