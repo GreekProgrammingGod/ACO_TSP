@@ -96,7 +96,7 @@ public class Visualiseur extends JFrame {
     }
 
 
-    //fait l'ajout d'un nœud au pixel avec les coordonnées x et y
+    //Fait l'ajout d'un nœud au pixel avec les coordonnées x et y
 
     public void ajouterChemin(String nom, int x, int y) {
         noeuds.add(new Noeud(nom,x,y));
@@ -104,7 +104,7 @@ public class Visualiseur extends JFrame {
 
 
 
-    //fait la creation d'une arrêtes entre les nœuds i et j
+    //Fait la creation d'une arrêtes entre les nœuds i et j
     public void ajouterNoeud(int i, int j) {
         chemins.add(new Chemin(i,j));
     }
@@ -112,7 +112,7 @@ public class Visualiseur extends JFrame {
 
 
     //Fait une suppression des nœuds et arrêtes représenter
-    //et on refait l'affichage des nœuds et arrêtes
+    //et on refait l'affichage des nœuds et arrêtes.
     //Surcharge de la méthode paint dans la classe Window
     @Override
     public void paint(Graphics g) {
